@@ -82,6 +82,8 @@
   ([tape-to-replay options]
    (replay! tape-to-replay (assoc options :speed *slowmo-speed*))))
 
+(def *replayable-effects* (atom []))
+
 (def recordable
   (rf/->interceptor
    :id :record
@@ -92,7 +94,7 @@
                                     :db-after db
                                     :event event}))
               (if @replaying
-                (update context :effects #(select-keys % [:db]))
+                (update context :effects #(select-keys % (cons :db @*replayable-effects*)))
                 context)))))
 
 (rf/reg-event-db
