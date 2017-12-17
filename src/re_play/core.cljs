@@ -39,10 +39,12 @@
 
 (defn instant-replay!
   ([tape-to-replay]
-   (instant-replay! tape-to-replay (db-before-tape tape-to-replay)))
+   (instant-replay! tape-to-replay {}))
   
-  ([tape-to-replay initial-db]
-   (let [events (map :event tape-to-replay)]
+  ([tape-to-replay options]
+   (let [default-options {:intitial-db (db-before-tape tape-to-replay)}
+         {:keys [initial-db]} (merge default-options options)
+         events (map :event tape-to-replay)]
      (reset! replaying true)
      (rf/dispatch-sync [::reset initial-db])
      (doseq [event events]
@@ -52,11 +54,12 @@
 
 (defn replay!
   ([tape-to-replay]
-   (replay! tape-to-replay (db-before-tape tape-to-replay)))
-  ([tape-to-replay initial-db]
-   (replay! tape-to-replay initial-db 1))
-  ([tape-to-replay initial-db speed]
-   (let [start-time (:time (first tape-to-replay))
+   (replay! tape-to-replay {}))
+  ([tape-to-replay options]
+   (let [default-options {:initial-db (db-before-tape tape-to-replay)
+                          :speed 1}
+         {:keys [initial-db speed]} (merge default-options options)
+         start-time (:time (first tape-to-replay))
          events-with-time (->> tape-to-replay
                                (map (fn [event]
                                       (update event :time #(- % start-time))))
@@ -71,11 +74,13 @@
          (reset! replaying false)))
      nil)))
 
+(def *slowmo-speed* 0.25)
+
 (defn slowmo-replay!
-  ([tape-to-replay initial-db]
-   (replay! tape-to-replay initial-db 0.25))
   ([tape-to-replay]
-   (replay! tape-to-replay (db-before-tape tape-to-replay) 0.25)))
+   (replay! tape-to-replay {:speed *slowmo-speed*}))
+  ([tape-to-replay options]
+   (replay! tape-to-replay (assoc options :speed *slowmo-speed*))))
 
 (def recordable
   (rf/->interceptor
