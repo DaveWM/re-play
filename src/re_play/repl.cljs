@@ -35,6 +35,9 @@
        (filter #(<= start-time (:time %) end-time))
        vec))
 
+(defn all-tape []
+  @tape)
+
 (defn instant-replay!
   ([tape-to-replay]
    (instant-replay! tape-to-replay {}))
