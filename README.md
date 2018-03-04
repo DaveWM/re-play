@@ -18,7 +18,7 @@ This may seem like a contrived example, but in real apps you can often find your
 
 First, add re-play to your `project.clj` dependencies:
 
-`[re-play "0.1.0-SNAPSHOT"]`
+`[re-play "0.1.0"]`
 
 You then need to add the `recordable` interceptor to all event handlers that you want to be able to replay. If possible, I'd recommend doing this for every event handler. You add the interceptor like this:
 

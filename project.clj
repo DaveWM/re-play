@@ -1,4 +1,4 @@
-(defproject re-play "0.1.0-SNAPSHOT"
+(defproject re-play "0.1.0"
   :description "Debug re-frame apps by replaying events"
   :url "https://github.com/DaveWM/re-play"
   :license {:name "MIT License"
