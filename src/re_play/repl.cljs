@@ -1,6 +1,6 @@
 (ns re-play.repl
   (:require [re-frame.core :as rf]
-            [clojure.core.async :as async :refer [<!!]]
+            [clojure.core.async :as async :refer [<!]]
             [re-play.core :as rp :refer [tape replaying]]
             [re-play.utils :as utils])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
