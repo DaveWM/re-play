@@ -2,12 +2,18 @@
   (:require [re-frame.core :as rf]
             [re-play.utils :as utils]))
 
-(defonce tape (atom []))
-(defonce ^:private replaying (atom false))
+(defonce ^{:doc "Atom containing a seq of all events recorded by the 'recordable' interceptor. All events have the :time, :db-after, and :event keys."}
+  tape (atom []))
 
-(def *replayable-effects* (atom []))
+(defonce ^{:doc "Atom containing a boolean of whether a replay is currently in progress"}
+  replaying (atom false))
+
+(def *replayable-effects*
+  "An atom containing a set of effects that should be replayed (in addition to the :db effect). Use with caution."
+  (atom #{}))
 
 (def recordable
+  "An interceptor for recording events onto tape. When replaying, it also removes all side effects (apart from those in *replayable-effects*)."
   (rf/->interceptor
    :id :record
    :after (fn [context]
