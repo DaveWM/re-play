@@ -15,32 +15,37 @@
   ([mark] (assoc mark :end-time (utils/current-time)))
   ([mark time] (assoc mark :end-time time)))
 
-(defn db-at-time [time]
+(defn db-at-time
   "Gets the app-db as of the given time."
+  [time]
   (->> @tape
        (filter #(> time (:time %)))
        last
        :db-after))
 
-(defn db-at-mark [{:keys [start-time]}]
+(defn db-at-mark
   "Gets the app-db as of the start-time of the given mark."
+  [{:keys [start-time]}]
   (db-at-time start-time))
 
-(defn db-before-tape [tape]
+(defn db-before-tape
   "Gets the app-db before the start of the given tape (a seq of events)"
+  [tape]
   (-> (first tape)
       :time
       dec
       db-at-time))
 
-(defn marked-tape [{:keys [start-time end-time]}]
+(defn marked-tape
   "Gets the section of tape that is covered by the given mark (i.e. between the start and end times of the mark)."
+  [{:keys [start-time end-time]}]
   (->> @tape
        (filter #(<= start-time (:time %) end-time))
        vec))
 
-(defn all-tape []
+(defn all-tape
   "Gets all the events recorded onto the tape."
+  []
   @tape)
 
 (defn instant-replay!
