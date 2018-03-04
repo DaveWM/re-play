@@ -82,19 +82,3 @@
    (replay! tape-to-replay {:speed *slowmo-speed*}))
   ([tape-to-replay options]
    (replay! tape-to-replay (assoc options :speed *slowmo-speed*))))
-
-(defn go-back! [marked-tape]
-  (let [new-tape (butlast marked-tape)
-        penultimate-event-db (:db-after (last new-tape))]
-    (rf/dispatch-sync [::rp/reset penultimate-event-db])
-    new-tape))
-
-(defn go-forwards! [marked-tape]
-  (let [last-event (last marked-tape)
-        new-event (-> @tape
-                      (filter (fn [{:keys [time] :as event}]
-                                (< (:time last-event) (:time %))))
-                      first)
-        new-event-db (:db-after new-event)]
-    (rf/dispatch-sync [::rp/reset new-event-db])
-    (conj marked-tape new-event)))
