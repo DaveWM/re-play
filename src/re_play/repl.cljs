@@ -1,18 +1,16 @@
 (ns re-play.repl
   (:require [re-frame.core :as rf]
             [clojure.core.async :as async :refer [<!!]]
-            [re-play.core :as rp :refer [tape replaying]])
+            [re-play.core :as rp :refer [tape replaying]]
+            [re-play.utils :as utils])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
-(defn- current-time []
-  (.getTime (js/Date.)))
-
 (defn mark
-  ([] {:start-time (current-time)})
+  ([] {:start-time (utils/current-time)})
   ([time] {:start-time time}))
 
 (defn end-mark
-  ([mark] (assoc mark :end-time (current-time)))
+  ([mark] (assoc mark :end-time (utils/current-time)))
   ([mark time] (assoc mark :end-time time)))
 
 (defn db-at-time [time]
