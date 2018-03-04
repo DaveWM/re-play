@@ -2,6 +2,8 @@
 
 The aim of re-play is to shorten your feedback loop when debugging sequences of events.
 
+[API docs](https://davewm.github.io/re-play/)
+
 ## Why is it useful?
 
 Debugging sequences of events, i.e. when one event triggers other events, can be quite tedious. This is especially true if some events in the chain cause side effects which aren't easy to undo (e.g. a POST request). Re-play gives you a way to easily replay a series of events, without triggering any side effects.
@@ -34,7 +36,7 @@ You then need to add the `recordable` interceptor to all event handlers that you
 
 This interceptor will record all events that occur in the `tape` atom in `re-play.core`.
 
-Start up figwheel, and in the repl run `(require '[re-play.repl :as rp])`. There are several useful functions in this namespace (see the docs), but let's just consider the `replay!` function to start with. This function takes a seq of events, and replays them at real-time speed.
+Start up figwheel, and in the repl run `(require '[re-play.repl :as rp])`. There are several useful functions in this namespace (see [the docs](https://davewm.github.io/re-play/)), but let's just consider the `replay!` function to start with. This function takes a seq of events, and replays them at real-time speed.
 
 To get these events, you can use what re-play calls `marks`. This is just a map, containing the `:start-time` and `:end-time` keys. Run this in your repl to define a mark: 
 ```clojure
@@ -58,7 +60,7 @@ You can replay events even after you've made changes to your event handler code.
 
 ## How it works
 
-The `recordable` interceptor records every event in the `tape` atom in `re-play.core`. When you replay events (using either `replay!` or `instant-replay!`), re-play will fire a `re-play.core/reset` event. This will reset the app-db to its value before the sequence of events. Re-play then fires all the events that you pass to `replay!`/`instant-replay!` using `rf/dispatch-sync` (how exactly this is done is different for each function, see the docs).
+The `recordable` interceptor records every event in the `tape` atom in `re-play.core`. When you replay events (using either `replay!` or `instant-replay!`), re-play will fire a `re-play.core/reset` event. This will reset the app-db to its value before the sequence of events. Re-play then fires all the events that you pass to `replay!`/`instant-replay!` using `rf/dispatch-sync` (how exactly this is done is different for each function, see [the docs](https://davewm.github.io/re-play/)).
 
 It's important to note that `tape` is an append-only seq of _all_ events that occur - including those triggered by re-play itself. Therefore, if you inspect the `tape` atom after you call `replay!`, you will see a `re-play.core/reset` event, and all the events you passed to `replay!`.
 
