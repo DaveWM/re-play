@@ -6,37 +6,45 @@
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (defn mark
+  "Starts a mark. When provided a time, uses that time as the start time, otherwise uses the current time."
   ([] {:start-time (utils/current-time)})
   ([time] {:start-time time}))
 
 (defn end-mark
+  "Ends a mark. When provided a time, uses that time as the end time, otherwise uses the current time."
   ([mark] (assoc mark :end-time (utils/current-time)))
   ([mark time] (assoc mark :end-time time)))
 
 (defn db-at-time [time]
+  "Gets the app-db as of the given time."
   (->> @tape
        (filter #(> time (:time %)))
        last
        :db-after))
 
 (defn db-at-mark [{:keys [start-time]}]
+  "Gets the app-db as of the start-time of the given mark."
   (db-at-time start-time))
 
 (defn db-before-tape [tape]
+  "Gets the app-db before the start of the given tape (a seq of events)"
   (-> (first tape)
       :time
       dec
       db-at-time))
 
 (defn marked-tape [{:keys [start-time end-time]}]
+  "Gets the section of tape that is covered by the given mark (i.e. between the start and end times of the mark)."
   (->> @tape
        (filter #(<= start-time (:time %) end-time))
        vec))
 
 (defn all-tape []
+  "Gets all the events recorded onto the tape."
   @tape)
 
 (defn instant-replay!
+  "Synchronously and instantaneously replays the given events. Takes a seq of events, and an optional map containing an :initial-db key (the initial value of app-db to start the replay with)."
   ([tape-to-replay]
    (instant-replay! tape-to-replay {}))
   
@@ -52,6 +60,7 @@
      nil)))
 
 (defn replay!
+  "Asynchronously replays the given events. Do not run more than 1 replay at once. Takes a seq of events, and an optional map containing an :initial-db key (the initial value of app-db to start the replay with), and :speed (a multiplier for the speed at which events are replayed)."
   ([tape-to-replay]
    (replay! tape-to-replay {}))
   ([tape-to-replay options]
@@ -73,9 +82,12 @@
          (reset! replaying false)))
      nil)))
 
-(def *slowmo-speed* 0.25)
+(def *slowmo-speed*
+  "The speed which slowmo-replay replays events. It is recommended to use replay! with the optional :speed parameter rather than overriding this."
+  0.25)
 
 (defn slowmo-replay!
+  "Same as replay, but at 1/4 speed."
   ([tape-to-replay]
    (replay! tape-to-replay {:speed *slowmo-speed*}))
   ([tape-to-replay options]
