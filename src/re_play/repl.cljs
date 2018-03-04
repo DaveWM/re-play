@@ -1,7 +1,7 @@
 (ns re-play.repl
   (:require [re-frame.core :as rf]
             [clojure.core.async :as async :refer [<!!]]
-            [re-play.core :refer [tape replaying]])
+            [re-play.core :as rp :refer [tape replaying]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (defn- current-time []
@@ -47,7 +47,7 @@
          {:keys [initial-db]} (merge default-options options)
          events (map :event tape-to-replay)]
      (reset! replaying true)
-     (rf/dispatch-sync [::reset initial-db])
+     (rf/dispatch-sync [::rp/reset initial-db])
      (doseq [event events]
        (rf/dispatch-sync event))
      (reset! replaying false)
@@ -66,7 +66,7 @@
                                       (update event :time #(- % start-time))))
                                (map (juxt :event :time)))]
      (reset! replaying true)
-     (rf/dispatch-sync [::reset initial-db])
+     (rf/dispatch-sync [::rp/reset initial-db])
      (go-loop [[[event time] & other-events] events-with-time]
        (<! (async/timeout (/ time speed)))
        (rf/dispatch-sync event)
@@ -86,7 +86,7 @@
 (defn go-back! [marked-tape]
   (let [new-tape (butlast marked-tape)
         penultimate-event-db (:db-after (last new-tape))]
-    (rf/dispatch-sync [::reset penultimate-event-db])
+    (rf/dispatch-sync [::rp/reset penultimate-event-db])
     new-tape))
 
 (defn go-forwards! [marked-tape]
@@ -96,5 +96,5 @@
                                 (< (:time last-event) (:time %))))
                       first)
         new-event-db (:db-after new-event)]
-    (rf/dispatch-sync [::reset new-event-db])
+    (rf/dispatch-sync [::rp/reset new-event-db])
     (conj marked-tape new-event)))
